@@ -1,6 +1,6 @@
 import React from "react";
 import { IonSpinner } from "@ionic/react";
-import { connect } from "../services/LoadingBarService";
+import { connect } from "../services/LoadingSpinnerService";
 
 const spinnerContainerStyles = {
   marginBottom: "80px",
@@ -13,34 +13,34 @@ const spinnerContainerStyles = {
 export class SmartSpinner extends React.Component {
   state = {
     percentageLoaded: 0,
-    showLoadingBar: false
+    show: false
   };
 
   componentDidMount() {
     connect(
-      this.showLoadingBar.bind(this),
-      this.hideLoadingBar.bind(this)
+      this.showSpinner.bind(this),
+      this.hideSpinner.bind(this)
     );
   }
 
-  showLoadingBar(total, loaded) {
+  showSpinner(total, loaded) {
     const percentageDefined = total !== undefined && loaded !== undefined;
-    const percentageLoaded = percentageDefined ? loaded / total : 0;
+    const percentageLoaded = percentageDefined ? (loaded / total) * 100 : 0;
     this.setState({
-      percentageLoaded,
-      showLoadingBar: true
+      percentageLoaded: Math.round(percentageLoaded),
+      show: true
     });
   }
 
-  hideLoadingBar() {
+  hideSpinner() {
     this.setState({
-      showLoadingBar: false
+      show: false
     });
   }
 
   render() {
     return (
-      this.state.showLoadingBar && (
+      this.state.show && (
         <div style={spinnerContainerStyles}>
           <IonSpinner
             style={{ transform: "scale(1.5)" }}
@@ -49,7 +49,7 @@ export class SmartSpinner extends React.Component {
           <div style={{ marginLeft: "20px" }}>
             Loading..
             {this.state.percentageLoaded > 0
-              ? this.state.percentageLoaded * 100 + "%"
+              ? this.state.percentageLoaded + "%"
               : ""}
           </div>
         </div>

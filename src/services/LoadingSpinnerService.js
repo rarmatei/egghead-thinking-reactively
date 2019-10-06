@@ -1,7 +1,7 @@
 let broadcastShow;
 let broadcastHide;
 
-export function initLoadingBar(total, loaded) {
+export function initLoadingSpinner(total, loaded) {
   const loadingController = {
     show: show.bind(null, total, loaded),
     hide

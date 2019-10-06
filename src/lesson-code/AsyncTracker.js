@@ -13,102 +13,94 @@ import {
   shareReplay
 } from "rxjs/operators";
 
-import { initLoadingBar } from "../services/LoadingBarService";
+import { initLoadingSpinner } from "../services/LoadingSpinnerService";
 import { keyboardCombo } from "./EventCombo";
 
-//don't make this into a class, make it into a simple module
-class Service {
-  _loadStarts = new Subject();
-  _loadEnds = new Subject();
+const loadStarts = new Subject();
+const loadEnds = new Subject();
 
-  constructor() {
-    const disableLoaderCombo = keyboardCombo(["a", "s", "d"]);
+const disableSpinnerCombo = keyboardCombo(["a", "s", "d"]);
 
-    const loadUp = this._loadStarts.pipe(mapTo(1));
-    const loadDown = this._loadEnds.pipe(mapTo(-1));
+const loadUp = loadStarts.pipe(mapTo(1));
+const loadDown = loadEnds.pipe(mapTo(-1));
 
-    const loadVariations = merge(loadUp, loadDown);
+const loadVariations = merge(loadUp, loadDown);
 
-    const currentLoadCount = loadVariations.pipe(
-      scan((currLoads, loadEvent) => {
-        const newCount = currLoads + loadEvent;
-        //ensures it doesn't go below zero
-        return newCount > 0 ? newCount : 0;
-      }, 0),
-      startWith(0),
-      distinctUntilChanged(), //in case of multiple zeros,
-      shareReplay(1) //show how it doesn't work - then add the share() - then show why we need to change to shareReplay(1)
-    );
+const currentLoadCount = loadVariations.pipe(
+  scan((currLoads, loadEvent) => {
+    const newCount = currLoads + loadEvent;
+    //ensures it doesn't go below zero
+    return newCount > 0 ? newCount : 0;
+  }, 0),
+  startWith(0),
+  distinctUntilChanged(), //in case of multiple zeros,
+  shareReplay(1) //show how it doesn't work - then add the share() - then show why we need to change to shareReplay(1)
+);
 
-    const hideLoader = currentLoadCount.pipe(filter(count => count === 0));
+const hideSpinner = currentLoadCount.pipe(filter(count => count === 0));
 
-    const showLoader = currentLoadCount.pipe(
-      pairwise(),
-      filter(([prev, curr]) => curr === 1 && prev === 0)
-    );
+const showSpinner = currentLoadCount.pipe(
+  pairwise(),
+  filter(([prev, curr]) => curr === 1 && prev === 0)
+);
 
-    const flashThresholdMs = 2000;
+const flashThresholdMs = 2000;
 
-    const showWithDelay = showLoader.pipe(
-      switchMap(() => {
-        return timer(flashThresholdMs).pipe(takeUntil(hideLoader));
-      })
-    );
+const showWithDelay = showSpinner.pipe(
+  switchMap(() => {
+    return timer(flashThresholdMs).pipe(takeUntil(hideSpinner));
+  })
+);
 
-    const hideDelayed = combineLatest(
-      hideLoader.pipe(first()),
-      timer(flashThresholdMs)
-    );
+const hideDelayed = combineLatest(
+  hideSpinner.pipe(first()),
+  timer(flashThresholdMs)
+);
 
-    const loadCounter = currentLoadCount.pipe(
-      scan(
-        ({ loaded, runningCount }, currCount) => {
-          return {
-            loaded: currCount < runningCount ? loaded + 1 : loaded,
-            runningCount: currCount
-          };
-        },
-        { loaded: 0, runningCount: 0 }
-      ),
-      map(loadStats => ({
-        max: loadStats.loaded + loadStats.runningCount,
-        loaded: loadStats.loaded
-      }))
-    );
-
-    const displayLoader = loadCounter.pipe(
-      switchMap(stats => this.displayLoader(stats.max, stats.loaded))
-    );
-
-    showWithDelay
-      .pipe(
-        switchMap(() => displayLoader.pipe(takeUntil(hideDelayed))),
-        takeUntil(disableLoaderCombo)
-      )
-      .subscribe();
-  }
-
-  //TODO rename this
-  somethingStarted() {
-    this._loadStarts.next();
-  }
-
-  somethingFinished() {
-    this._loadEnds.next();
-  }
-
-  displayLoader(total, loaded) {
-    return new Observable(() => {
-      const loadingBarPromise = initLoadingBar(total, loaded);
-      loadingBarPromise.then(loadingBar => loadingBar.show());
-      return () => {
-        loadingBarPromise.then(loadingBar => loadingBar.hide());
+const loadCounter = currentLoadCount.pipe(
+  scan(
+    ({ loaded, runningCount }, currCount) => {
+      return {
+        loaded: currCount < runningCount ? loaded + 1 : loaded,
+        runningCount: currCount
       };
-    });
-  }
+    },
+    { loaded: 0, runningCount: 0 }
+  ),
+  map(loadStats => ({
+    max: loadStats.loaded + loadStats.runningCount,
+    loaded: loadStats.loaded
+  }))
+);
+
+const spinner = loadCounter.pipe(
+  switchMap(stats => displaySpinner(stats.max, stats.loaded))
+);
+
+showWithDelay
+  .pipe(
+    switchMap(() => spinner.pipe(takeUntil(hideDelayed))),
+    takeUntil(disableSpinnerCombo)
+  )
+  .subscribe();
+
+export function taskStarted() {
+  loadStarts.next();
 }
 
-const service = new Service();
+export function taskCompleted() {
+  loadEnds.next();
+}
+
+function displaySpinner(total, loaded) {
+  return new Observable(() => {
+    const loadingSpinnerInstance = initLoadingSpinner(total, loaded);
+    loadingSpinnerInstance.then(spinner => spinner.show());
+    return () => {
+      loadingSpinnerInstance.then(spinner => spinner.hide());
+    };
+  });
+}
 
 /*
 1. the above - initial show and hide, connect the service as an observable
@@ -140,4 +132,7 @@ we want to keep it as simple as possible, we'll use an up and down method for no
 we'll then build further abstractions on top of it
 */
 
-export default service;
+export default {
+  taskCompleted,
+  taskStarted
+};

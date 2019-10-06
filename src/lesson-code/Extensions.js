@@ -4,12 +4,12 @@ import LoaderService from "./AsyncTracker";
 export function showLoadingStatus() {
   return source => {
     return new Observable(observer => {
-      LoaderService.somethingStarted();
+      LoaderService.taskStarted();
       return source.subscribe({
         ...observer,
         next: value => {
           observer.next(value);
-          LoaderService.somethingFinished();
+          LoaderService.taskCompleted();
         }
       });
     });
@@ -20,15 +20,15 @@ export class PromiseWithLoadingProgress extends Promise {
   constructor(executor) {
     super((originalResolve, originalReject) => {
       const resolve = (...args) => {
-        LoaderService.somethingFinished();
+        LoaderService.taskCompleted();
         return originalResolve(...args);
       };
       const reject = (...args) => {
-        LoaderService.somethingFinished();
+        LoaderService.taskCompleted();
         return originalReject(...args);
       };
       return executor(resolve, reject);
     });
-    LoaderService.somethingStarted();
+    LoaderService.taskStarted();
   }
 }
