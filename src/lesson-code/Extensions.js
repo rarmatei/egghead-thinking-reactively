@@ -1,15 +1,15 @@
 import { Observable } from "rxjs";
-import LoaderService from "./AsyncTracker";
+import TaskProgressService from "./TaskProgressService";
 
 export function showLoadingStatus() {
   return source => {
     return new Observable(observer => {
-      LoaderService.taskStarted();
+      TaskProgressService.taskStarted();
       return source.subscribe({
         ...observer,
         next: value => {
           observer.next(value);
-          LoaderService.taskCompleted();
+          TaskProgressService.taskCompleted();
         }
       });
     });
@@ -20,15 +20,15 @@ export class PromiseWithLoadingProgress extends Promise {
   constructor(executor) {
     super((originalResolve, originalReject) => {
       const resolve = (...args) => {
-        LoaderService.taskCompleted();
+        TaskProgressService.taskCompleted();
         return originalResolve(...args);
       };
       const reject = (...args) => {
-        LoaderService.taskCompleted();
+        TaskProgressService.taskCompleted();
         return originalReject(...args);
       };
       return executor(resolve, reject);
     });
-    LoaderService.taskStarted();
+    TaskProgressService.taskStarted();
   }
 }
