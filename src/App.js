@@ -4,13 +4,16 @@ import {
   IonApp,
   IonIcon,
   IonLabel,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
   IonRouterOutlet,
   IonTabBar,
   IonTabButton,
   IonTabs
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
-import { apps, flash, send, clock } from "ionicons/icons";
+import { flash, clock } from "ionicons/icons";
 import Tab1 from "./pages/Tab1";
 import Tab2 from "./pages/Tab2";
 
@@ -29,12 +32,15 @@ import "@ionic/react/css/text-alignment.css";
 import "@ionic/react/css/text-transformation.css";
 import "@ionic/react/css/flex-utils.css";
 import "@ionic/react/css/display.css";
-
-/* Theme variables */
-import "./theme/variables.css";
+import { SmartSpinner } from "./components/SmartSpinner";
 
 const App = () => (
   <IonApp>
+    <IonHeader>
+      <IonToolbar>
+        <IonTitle>Solve problems reactively</IonTitle>
+      </IonToolbar>
+    </IonHeader>
     <IonReactRouter>
       <IonTabs>
         <IonRouterOutlet>
@@ -54,6 +60,7 @@ const App = () => (
         </IonTabBar>
       </IonTabs>
     </IonReactRouter>
+    <SmartSpinner></SmartSpinner>
   </IonApp>
 );
 

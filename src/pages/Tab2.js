@@ -12,11 +12,6 @@ import FastExample from "../components/FastExample";
 const Tab2 = () => {
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Very quick tasks</IonTitle>
-        </IonToolbar>
-      </IonHeader>
       <IonContent>
         <DisplayCenter>
           <FastExample></FastExample>

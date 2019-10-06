@@ -12,11 +12,6 @@ import SlowExample from "../components/SlowExample";
 const Tab1 = () => {
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Solve problems reactively</IonTitle>
-        </IonToolbar>
-      </IonHeader>
       <IonContent>
         <DisplayCenter>
           <SlowExample></SlowExample>
