@@ -1,22 +1,23 @@
-import React from 'react';
-import { IonContent, IonHeader, IonItem, IonLabel, IonList, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import React from "react";
+import {
+  IonContent,
+  IonHeader,
+  IonPage,
+  IonTitle,
+  IonToolbar
+} from "@ionic/react";
+import DisplayCenter from "../components/DisplayCenter";
 
 const Tab2: React.FC = () => {
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Tab Two</IonTitle>
+          <IonTitle>Very quick tasks</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        <IonList>
-          <IonItem routerLink="/tab2/details">
-            <IonLabel>
-              <h2>Go to detail</h2>
-            </IonLabel>
-          </IonItem>
-        </IonList>
+        <DisplayCenter>some content..</DisplayCenter>
       </IonContent>
     </IonPage>
   );
