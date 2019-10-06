@@ -1,4 +1,3 @@
-import React from "react";
 import {
   IonContent,
   IonHeader,
@@ -6,21 +5,25 @@ import {
   IonTitle,
   IonToolbar
 } from "@ionic/react";
+import React from "react";
 import DisplayCenter from "../components/DisplayCenter";
+import SlowExample from "../components/SlowExample";
 
-const Tab2: React.FC = () => {
+const Tab1 = () => {
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Very quick tasks</IonTitle>
+          <IonTitle>Solve problems reactively</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        <DisplayCenter>some content..</DisplayCenter>
+        <DisplayCenter>
+          <SlowExample></SlowExample>
+        </DisplayCenter>
       </IonContent>
     </IonPage>
   );
 };
 
-export default Tab2;
+export default Tab1;

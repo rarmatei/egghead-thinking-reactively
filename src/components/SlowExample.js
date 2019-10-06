@@ -1,7 +1,7 @@
 import React from "react";
 import { IonButton } from "@ionic/react";
 
-const SlowExample: React.FC = () => {
+const SlowExample = () => {
   return (
     <>
       <IonButton>Start slow task</IonButton>

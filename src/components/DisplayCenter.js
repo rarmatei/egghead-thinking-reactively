@@ -4,9 +4,9 @@ const style = {
   height: "100%",
   display: "flex",
   flexDirection: "column"
-} as React.CSSProperties;
+};
 
-const DisplayCenter: React.FC = props => {
+const DisplayCenter = props => {
   return (
     <div
       style={style}
