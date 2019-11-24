@@ -32,7 +32,7 @@ import "@ionic/react/css/text-alignment.css";
 import "@ionic/react/css/text-transformation.css";
 import "@ionic/react/css/flex-utils.css";
 import "@ionic/react/css/display.css";
-import { SmartSpinner } from "./components/SmartSpinner";
+import { SmartSpinner } from "./components/presentational/SmartSpinner";
 
 const App = () => (
   <IonApp>

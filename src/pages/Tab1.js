@@ -1,12 +1,6 @@
-import {
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonTitle,
-  IonToolbar
-} from "@ionic/react";
+import { IonContent, IonPage } from "@ionic/react";
 import React from "react";
-import DisplayCenter from "../components/DisplayCenter";
+import DisplayCenter from "../components/presentational/DisplayCenter";
 import SlowExample from "../components/SlowExample";
 
 const Tab1 = () => {

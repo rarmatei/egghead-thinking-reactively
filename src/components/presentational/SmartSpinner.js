@@ -1,6 +1,6 @@
 import React from "react";
 import { IonSpinner } from "@ionic/react";
-import { connect } from "../services/LoadingSpinnerService";
+import { connect } from "../../services/LoadingSpinnerService";
 
 const spinnerContainerStyles = {
   marginBottom: "80px",
@@ -17,10 +17,7 @@ export class SmartSpinner extends React.Component {
   };
 
   componentDidMount() {
-    connect(
-      this.showSpinner.bind(this),
-      this.hideSpinner.bind(this)
-    );
+    connect(this.showSpinner.bind(this), this.hideSpinner.bind(this));
   }
 
   showSpinner(total, loaded) {
