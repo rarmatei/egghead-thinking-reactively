@@ -1,15 +1,14 @@
 import React from "react";
-import { PromiseWithLoadingProgress } from "../lesson-code/Extensions";
 import Button from "./presentational/Button";
 
 const doVeryQuickWork = () => {
-  new PromiseWithLoadingProgress(resolve => {
+  new Promise(resolve => {
     setTimeout(resolve, 300);
   });
 };
 
 const doAlmostQuickWork = () => {
-  new PromiseWithLoadingProgress(resolve => {
+  new Promise(resolve => {
     setTimeout(resolve, 2200);
   });
 };

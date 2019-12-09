@@ -1,11 +1,9 @@
 import React from "react";
-import { IonButton } from "@ionic/react";
 import { timer } from "rxjs";
-import { showLoadingStatus } from "../lesson-code/Extensions";
 import Button from "./presentational/Button";
 
-const slowObservable = timer(6000).pipe(showLoadingStatus());
-const verySlowObservable = timer(12000).pipe(showLoadingStatus());
+const slowObservable = timer(6000);
+const verySlowObservable = timer(12000);
 
 const doWork = () => {
   slowObservable.subscribe();
