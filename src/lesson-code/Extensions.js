@@ -6,10 +6,14 @@ export function showLoadingStatus() {
     return new Observable(observer => {
       TaskProgressService.taskStarted();
       return source.subscribe({
-        ...observer,
-        next: value => {
-          observer.next(value);
+        next: val => observer.next(val),
+        error: err => {
           TaskProgressService.taskCompleted();
+          observer.error(err);
+        },
+        complete: () => {
+          TaskProgressService.taskCompleted();
+          observer.complete();
         }
       });
     });
@@ -32,3 +36,8 @@ export class PromiseWithLoadingProgress extends Promise {
     TaskProgressService.taskStarted();
   }
 }
+
+const resolveAfter5 = new Promise((resolve, reject) => {
+  setTimeout(reject, 5000);
+  return "5";
+});

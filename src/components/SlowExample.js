@@ -2,6 +2,7 @@ import React from "react";
 import { IonButton } from "@ionic/react";
 import { timer } from "rxjs";
 import { showLoadingStatus } from "../lesson-code/Extensions";
+import Button from "./presentational/Button";
 
 const slowObservable = timer(6000).pipe(showLoadingStatus());
 const verySlowObservable = timer(12000).pipe(showLoadingStatus());
@@ -17,8 +18,8 @@ const doLongWork = () => {
 const SlowExample = () => {
   return (
     <>
-      <IonButton onClick={doWork}>Start slow task - 6s</IonButton>
-      <IonButton onClick={doLongWork}>Start very slow task - 12s</IonButton>
+      <Button onClick={doWork}>Start slow task - 6s</Button>
+      <Button onClick={doLongWork}>Start very slow task - 12s</Button>
     </>
   );
 };

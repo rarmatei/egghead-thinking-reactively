@@ -16,20 +16,18 @@ import {
 import { initLoadingSpinner } from "../services/LoadingSpinnerService";
 import { keyboardCombo } from "./EventCombo";
 
-const loadStarts = new Subject();
-const loadEnds = new Subject();
+const loadingStarted = new Subject();
+const loadingCompleted = new Subject();
 
-const disableSpinnerCombo = keyboardCombo(["a", "s", "d"]);
-
-const loadUp = loadStarts.pipe(mapTo(1));
-const loadDown = loadEnds.pipe(mapTo(-1));
+const loadUp = loadingStarted.pipe(mapTo(1));
+const loadDown = loadingCompleted.pipe(mapTo(-1));
 
 const loadVariations = merge(loadUp, loadDown);
 
 const currentLoadCount = loadVariations.pipe(
-  scan((currLoads, loadEvent) => {
-    const newCount = currLoads + loadEvent;
-    return newCount > 0 ? newCount : 0;
+  scan((totalCurrentLoads, changeInLoads) => {
+    const newLoadCount = totalCurrentLoads + changeInLoads;
+    return newLoadCount > 0 ? newLoadCount : 0;
   }, 0),
   startWith(0),
   distinctUntilChanged(),
@@ -51,23 +49,23 @@ const showWithDelay = showSpinner.pipe(
   })
 );
 
-const hideDelayed = combineLatest(
+const hideWithDelay = combineLatest(
   hideSpinner.pipe(first()),
   timer(flashThresholdMs)
 );
 
 const loadCounter = currentLoadCount.pipe(
   scan(
-    ({ loaded, runningCount }, currCount) => {
+    ({ loaded, currentlyInProgress }, runningCount) => {
       return {
-        loaded: currCount < runningCount ? loaded + 1 : loaded,
-        runningCount: currCount
+        loaded: runningCount < currentlyInProgress ? loaded + 1 : loaded,
+        currentlyInProgress: runningCount
       };
     },
     { loaded: 0, runningCount: 0 }
   ),
   map(loadStats => ({
-    max: loadStats.loaded + loadStats.runningCount,
+    max: loadStats.loaded + loadStats.currentlyInProgress,
     loaded: loadStats.loaded
   }))
 );
@@ -76,20 +74,14 @@ const spinner = loadCounter.pipe(
   switchMap(stats => displaySpinner(stats.max, stats.loaded))
 );
 
+const disableSpinnerCombo = keyboardCombo(["a", "s", "d"]);
+
 showWithDelay
   .pipe(
-    switchMap(() => spinner.pipe(takeUntil(hideDelayed))),
+    switchMap(() => spinner.pipe(takeUntil(hideWithDelay))),
     takeUntil(disableSpinnerCombo)
   )
   .subscribe();
-
-export function taskStarted() {
-  loadStarts.next();
-}
-
-export function taskCompleted() {
-  loadEnds.next();
-}
 
 function displaySpinner(total, loaded) {
   return new Observable(() => {
@@ -101,7 +93,10 @@ function displaySpinner(total, loaded) {
   });
 }
 
-export default {
-  taskCompleted,
-  taskStarted
-};
+export function taskStarted() {
+  loadingStarted.next();
+}
+
+export function taskCompleted() {
+  loadingCompleted.next();
+}

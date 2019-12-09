@@ -1,6 +1,6 @@
 import React from "react";
-import { IonButton } from "@ionic/react";
 import { PromiseWithLoadingProgress } from "../lesson-code/Extensions";
+import Button from "./presentational/Button";
 
 const doVeryQuickWork = () => {
   new PromiseWithLoadingProgress(resolve => {
@@ -17,10 +17,8 @@ const doAlmostQuickWork = () => {
 const SlowExample = () => {
   return (
     <>
-      <IonButton onClick={doVeryQuickWork}>QUICK task - 300ms</IonButton>
-      <IonButton onClick={doAlmostQuickWork}>
-        Almost quick task - 2200ms
-      </IonButton>
+      <Button onClick={doVeryQuickWork}>QUICK task - 300ms</Button>
+      <Button onClick={doAlmostQuickWork}>Almost quick task - 2200ms</Button>
     </>
   );
 };

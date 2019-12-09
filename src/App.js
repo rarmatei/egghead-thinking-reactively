@@ -33,35 +33,57 @@ import "@ionic/react/css/text-transformation.css";
 import "@ionic/react/css/flex-utils.css";
 import "@ionic/react/css/display.css";
 import { SmartSpinner } from "./components/presentational/SmartSpinner";
+//TODO change name everywhere to be DEBUG LESSON ONLY FYI
+import BgrCounter from "./services/BackgroundTasksCounter";
 
-const App = () => (
-  <IonApp>
-    <IonHeader>
-      <IonToolbar>
-        <IonTitle>Solve problems reactively</IonTitle>
-      </IonToolbar>
-    </IonHeader>
-    <IonReactRouter>
-      <IonTabs>
-        <IonRouterOutlet>
-          <Route path="/tab1" component={Tab1} exact={true} />
-          <Route path="/tab2" component={Tab2} exact={true} />
-          <Route exact path="/" render={() => <Redirect to="/tab1" />} />
-        </IonRouterOutlet>
-        <IonTabBar slot="bottom">
-          <IonTabButton tab="tab1" href="/tab1">
-            <IonIcon icon={clock} />
-            <IonLabel>Slow tasks</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="tab2" href="/tab2">
-            <IonIcon icon={flash} />
-            <IonLabel>Quick tasks</IonLabel>
-          </IonTabButton>
-        </IonTabBar>
-      </IonTabs>
-    </IonReactRouter>
-    <SmartSpinner></SmartSpinner>
-  </IonApp>
-);
+const styles = {
+  position: "absolute",
+  top: "60vh",
+  left: "calc(50% - 75px)"
+};
+
+export class App extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      tasks: 0
+    };
+
+    BgrCounter.connect(tasks => this.setState({ tasks }));
+  }
+
+  render() {
+    return (
+      <IonApp>
+        <IonHeader>
+          <IonToolbar>
+            <IonTitle>Solve problems reactively</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+        <IonReactRouter>
+          <IonTabs>
+            <IonRouterOutlet>
+              <Route path="/tab1" component={Tab1} exact={true} />
+              <Route path="/tab2" component={Tab2} exact={true} />
+              <Route exact path="/" render={() => <Redirect to="/tab1" />} />
+            </IonRouterOutlet>
+            <IonTabBar slot="bottom">
+              <IonTabButton tab="tab1" href="/tab1">
+                <IonIcon icon={clock} />
+                <IonLabel>Slow tasks</IonLabel>
+              </IonTabButton>
+              <IonTabButton tab="tab2" href="/tab2">
+                <IonIcon icon={flash} />
+                <IonLabel>Quick tasks</IonLabel>
+              </IonTabButton>
+            </IonTabBar>
+          </IonTabs>
+        </IonReactRouter>
+        <div style={styles}>Background tasks: {this.state.tasks}</div>
+        <SmartSpinner></SmartSpinner>
+      </IonApp>
+    );
+  }
+}
 
 export default App;

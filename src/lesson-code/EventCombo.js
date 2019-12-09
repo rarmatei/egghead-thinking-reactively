@@ -5,17 +5,24 @@ import {
   takeWhile,
   take,
   takeUntil,
-  exhaustMap
+  exhaustMap,
+  startWith
 } from "rxjs/operators";
 
-const keyPresses = fromEvent(document, "keypress").pipe(
+const anyKeyPresses = fromEvent(document, "keypress").pipe(
   map(event => event.key)
 );
 
-export function keyboardCombo(keyCombo) {
-  return keyPresses.pipe(
+function keyPressed(key) {
+  return anyKeyPresses.pipe(filter(pressedKey => pressedKey === key));
+}
+
+export function keyCombo(keyCombo) {
+  const comboInitiator = keyCombo[0];
+  return keyPressed(comboInitiator).pipe(
     exhaustMap(key => {
-      return concat(of(key), keyPresses).pipe(
+      return anyKeyPresses.pipe(
+        startWith(key),
         takeWhile((key, index) => keyCombo[index] === key),
         filter((_, index) => index === keyCombo.length - 1),
         take(1),
