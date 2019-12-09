@@ -1,5 +1,4 @@
 import React from "react";
-import { IonButton } from "@ionic/react";
 import { timer } from "rxjs";
 import { showLoadingStatus } from "../lesson-code/Extensions";
 import Button from "./presentational/Button";
