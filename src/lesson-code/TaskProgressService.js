@@ -14,7 +14,7 @@ import {
 } from "rxjs/operators";
 
 import { initLoadingSpinner } from "../services/LoadingSpinnerService";
-import { keyboardCombo } from "./EventCombo";
+import { keyCombo } from "./EventCombo";
 
 const loadingStarted = new Subject();
 const loadingCompleted = new Subject();
@@ -74,7 +74,7 @@ const spinner = loadCounter.pipe(
   switchMap(stats => displaySpinner(stats.max, stats.loaded))
 );
 
-const disableSpinnerCombo = keyboardCombo(["a", "s", "d"]);
+const disableSpinnerCombo = keyCombo(["a", "s", "d"]);
 
 showWithDelay
   .pipe(
@@ -100,3 +100,5 @@ export function taskStarted() {
 export function taskCompleted() {
   loadingCompleted.next();
 }
+
+export default {};
