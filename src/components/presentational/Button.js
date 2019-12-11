@@ -13,12 +13,12 @@ function onClick(text) {
       time = 2200;
       break;
     }
-    case "START VERY SLOW TASK - 12S": {
-      time = 12000;
+    case "START VERY SLOW TASK - 6S": {
+      time = 6000;
       break;
     }
-    case "START SLOW TASK - 6S": {
-      time = 6000;
+    case "START SLOW TASK - 3S": {
+      time = 3000;
       break;
     }
     default: {
