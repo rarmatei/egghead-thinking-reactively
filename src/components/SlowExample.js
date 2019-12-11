@@ -1,9 +1,10 @@
 import React from "react";
 import { timer } from "rxjs";
 import Button from "./presentational/Button";
+import {} from "../lesson-code/TaskProgressService";
 
-const slowObservable = timer(6000);
-const verySlowObservable = timer(12000);
+const slowObservable = timer(3000);
+const verySlowObservable = timer(6000);
 
 const doWork = () => {
   slowObservable.subscribe();
@@ -16,8 +17,8 @@ const doLongWork = () => {
 const SlowExample = () => {
   return (
     <>
-      <Button onClick={doWork}>Start slow task - 6s</Button>
-      <Button onClick={doLongWork}>Start very slow task - 12s</Button>
+      <Button onClick={doWork}>Start slow task - 3s</Button>
+      <Button onClick={doLongWork}>Start very slow task - 6s</Button>
     </>
   );
 };
