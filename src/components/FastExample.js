@@ -4,13 +4,17 @@ import {} from "../lesson-code/TaskProgressService";
 
 const doVeryQuickWork = () => {
   new Promise(resolve => {
-    setTimeout(resolve, 300);
+    setTimeout(() => {
+      resolve();
+    }, 300);
   });
 };
 
 const doAlmostQuickWork = () => {
   new Promise(resolve => {
-    setTimeout(resolve, 2200);
+    setTimeout(() => {
+      resolve();
+    }, 2200);
   });
 };
 
