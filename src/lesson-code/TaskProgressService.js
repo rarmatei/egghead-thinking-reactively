@@ -2,7 +2,6 @@ import { Observable, Subject, merge, timer, combineLatest } from "rxjs";
 import {
   mapTo,
   scan,
-  map,
   switchMap,
   distinctUntilChanged,
   startWith,

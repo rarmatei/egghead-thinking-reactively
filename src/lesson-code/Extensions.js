@@ -1,18 +1,18 @@
 import { Observable } from "rxjs";
-import { taskStarted, taskCompleted } from "./TaskProgressService";
+import { newTaskStarted, existingTaskCompleted } from "./TaskProgressService";
 
 export function showLoadingStatus() {
   return source => {
     return new Observable(observer => {
-      taskStarted();
+      newTaskStarted();
       return source.subscribe({
         next: val => observer.next(val),
         error: err => {
-          taskCompleted();
+          existingTaskCompleted();
           observer.error(err);
         },
         complete: () => {
-          taskCompleted();
+          existingTaskCompleted();
           observer.complete();
         }
       });
@@ -24,15 +24,15 @@ export class PromiseWithLoadingProgress extends Promise {
   constructor(executor) {
     super((originalResolve, originalReject) => {
       const resolve = (...args) => {
-        taskCompleted();
+        existingTaskCompleted();
         return originalResolve(...args);
       };
       const reject = (...args) => {
-        taskCompleted();
+        existingTaskCompleted();
         return originalReject(...args);
       };
       return executor(resolve, reject);
     });
-    taskStarted();
+    newTaskStarted();
   }
 }
