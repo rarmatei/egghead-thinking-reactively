@@ -33,7 +33,6 @@ import "@ionic/react/css/text-transformation.css";
 import "@ionic/react/css/flex-utils.css";
 import "@ionic/react/css/display.css";
 import { SmartSpinner } from "./components/presentational/SmartSpinner";
-//TODO change name everywhere to be DEBUG LESSON ONLY FYI
 import BgrCounter from "./services/BackgroundTasksCounter";
 
 const styles = {

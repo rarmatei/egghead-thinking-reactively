@@ -4,13 +4,17 @@ import Button from "./presentational/Button";
 
 const doVeryQuickWork = () => {
   new PromiseWithLoadingProgress(resolve => {
-    setTimeout(resolve, 300);
+    setTimeout(() => {
+      resolve();
+    }, 300);
   });
 };
 
 const doAlmostQuickWork = () => {
   new PromiseWithLoadingProgress(resolve => {
-    setTimeout(resolve, 2200);
+    setTimeout(() => {
+      resolve();
+    }, 2200);
   });
 };
 
