@@ -53,27 +53,27 @@ const shouldHideWithDelay = combineLatest(
   timer(flashThresholdMs)
 );
 
-const loadCounter = currentLoadCount.pipe(
+const loadingStats = currentLoadCount.pipe(
   scan(
-    ({ completed, loading }, loadingUpdate) => {
-      const completedUpdate =
-        loadingUpdate < loading ? completed + 1 : completed;
+    ({ completed, previousLoading }, loadingUpdate) => {
+      const loadsWentDown = loadingUpdate < previousLoading;
+      const currentCompleted = loadsWentDown ? completed + 1 : completed;
       return {
-        completed: completedUpdate,
-        loading: loadingUpdate,
-        max: loadingUpdate + completedUpdate
+        completed: currentCompleted,
+        previousLoading: loadingUpdate,
+        total: currentCompleted + loadingUpdate
       };
     },
     {
+      total: 0,
       completed: 0,
-      max: 0,
-      loading: 0
+      previousLoading: 0
     }
   )
 );
 
-const spinner = loadCounter.pipe(
-  switchMap(stats => displaySpinner(stats.max, stats.completed))
+const spinner = loadingStats.pipe(
+  switchMap(({ total, completed }) => displaySpinner(total, completed))
 );
 
 const disableSpinnerCombo = keyCombo(["a", "s", "d"]);
