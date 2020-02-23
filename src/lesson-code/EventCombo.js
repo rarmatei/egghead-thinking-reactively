@@ -21,9 +21,10 @@ export function keyCombo(keyCombo) {
   const comboInitiator = keyCombo[0];
   return keyPressed(comboInitiator).pipe(
     exhaustMap(() => {
+      const innerComboSize = keyCombo.length - 1;
       return anyKeyPresses.pipe(
-        takeWhile((key, index) => keyCombo[index + 1] === key),
-        skip(keyCombo.length - 2),
+        takeWhile((keyPressed, index) => keyCombo[index + 1] === keyPressed),
+        skip(innerComboSize - 1),
         take(1),
         takeUntil(timer(5000))
       );
