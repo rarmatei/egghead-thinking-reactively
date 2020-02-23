@@ -33,11 +33,11 @@ const currentLoadCount = loadVariations.pipe(
   shareReplay(1)
 );
 
-const shouldHideSpinner = currentLoadCount.pipe(filter(count => count === 0));
+const shouldHideSpinner = currentLoadCount.pipe(filter(loadCount => loadCount === 0));
 
 const shouldShowSpinner = currentLoadCount.pipe(
   pairwise(),
-  filter(([prev, curr]) => curr === 1 && prev === 0)
+  filter(([prevCount, currCount]) => currCount === 1 && prevCount === 0)
 );
 
 const flashThresholdMs = 2000;
@@ -49,7 +49,7 @@ const shouldShowWithDelay = shouldShowSpinner.pipe(
 );
 
 const shouldHideWithDelay = combineLatest(
-  shouldHideSpinner.pipe(first()),
+  shouldHideSpinner,
   timer(flashThresholdMs)
 );
 
