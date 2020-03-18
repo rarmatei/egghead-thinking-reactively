@@ -5,8 +5,8 @@ import {
   startWith,
   distinctUntilChanged,
   shareReplay,
-  pairwise,
   filter,
+  pairwise,
   switchMap,
   takeUntil
 } from "rxjs/operators";
@@ -57,6 +57,29 @@ const currentLoadCount = loadVariations.pipe(
 
 // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx //
 
+const loadStats = currentLoadCount.pipe(
+  scan(
+    (loadStats, loadingUpdate) => {
+      const loadsWentDown = loadingUpdate < loadStats.previousLoading;
+      const currentCompleted = loadsWentDown
+        ? loadStats.completed + 1
+        : loadStats.completed;
+      return {
+        total: currentCompleted + loadingUpdate,
+        completed: currentCompleted,
+        previousLoading: loadingUpdate
+      };
+    },
+    { total: 0, completed: 0, previousLoading: 0 }
+  )
+);
+
+// xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx //
+
+const spinnerWithStats = loadStats.pipe(
+  switchMap(stats => showSpinner(stats.total, stats.completed))
+);
+
 const spinnerDeactivated = currentLoadCount.pipe(filter(count => count === 0));
 
 const spinnerActivated = currentLoadCount.pipe(
@@ -72,19 +95,12 @@ const shouldShowSpinner = spinnerActivated.pipe(
   switchMap(() => flashThreshold.pipe(takeUntil(spinnerDeactivated)))
 );
 
-/*
-  When does the spinner need to hide?
-    When 2 events have happened:
-      Spinner became inactive
-      2 seconds have passed
-*/
-
 const shouldHideSpinner = combineLatest(spinnerDeactivated, flashThreshold);
 
 // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx //
 
 shouldShowSpinner
-  .pipe(switchMap(() => showSpinner.pipe(takeUntil(shouldHideSpinner))))
+  .pipe(switchMap(() => spinnerWithStats.pipe(takeUntil(shouldHideSpinner))))
   .subscribe();
 
 export default {};
