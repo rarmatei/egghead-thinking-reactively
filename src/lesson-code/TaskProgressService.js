@@ -1,4 +1,4 @@
-import { Observable, merge, Subject, timer } from "rxjs";
+import { Observable, merge, Subject, timer, combineLatest } from "rxjs";
 import {
   mapTo,
   scan,
@@ -66,20 +66,25 @@ const spinnerActivated = currentLoadCount.pipe(
 
 // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx //
 
-/*
-  The moment the spinner becomes active
-    Switch to waiting for 2s before showing it
-    But cancel if it becomes inactive again in the meantime
-*/
+const flashThreshold = timer(2000);
 
 const shouldShowSpinner = spinnerActivated.pipe(
-  switchMap(() => timer(2000).pipe(takeUntil(spinnerDeactivated)))
+  switchMap(() => flashThreshold.pipe(takeUntil(spinnerDeactivated)))
 );
+
+/*
+  When does the spinner need to hide?
+    When 2 events have happened:
+      Spinner became inactive
+      2 seconds have passed
+*/
+
+const shouldHideSpinner = combineLatest(spinnerDeactivated, flashThreshold);
 
 // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx //
 
 shouldShowSpinner
-  .pipe(switchMap(() => showSpinner.pipe(takeUntil(spinnerDeactivated))))
+  .pipe(switchMap(() => showSpinner.pipe(takeUntil(shouldHideSpinner))))
   .subscribe();
 
 export default {};
