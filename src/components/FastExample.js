@@ -1,26 +1,19 @@
 import React from "react";
 import Button from "./presentational/Button";
-import {
-  newTaskStarted,
-  existingTaskCompleted
-} from "../lesson-code/TaskProgressService";
+import { PromiseWithLoadingProgress } from "../lesson-code/Extensions";
 
 const doVeryQuickWork = () => {
-  newTaskStarted();
-  new Promise(resolve => {
+  new PromiseWithLoadingProgress(resolve => {
     setTimeout(() => {
       resolve();
-      existingTaskCompleted();
     }, 300);
   });
 };
 
 const doAlmostQuickWork = () => {
-  newTaskStarted();
-  new Promise(resolve => {
+  new PromiseWithLoadingProgress(resolve => {
     setTimeout(() => {
       resolve();
-      existingTaskCompleted();
     }, 2200);
   });
 };
