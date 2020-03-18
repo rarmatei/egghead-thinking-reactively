@@ -21,8 +21,7 @@ const loadVariations = merge(loadUp, loadDown);
 
 const currentLoadCount = loadVariations.pipe(
   scan((totalCurrentLoads, changeInLoads) => {
-    const newLoadCount = totalCurrentLoads + changeInLoads;
-    return newLoadCount < 0 ? 0 : newLoadCount;
+    return totalCurrentLoads + changeInLoads;
   }, 0)
 );
 
