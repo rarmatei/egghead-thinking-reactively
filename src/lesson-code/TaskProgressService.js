@@ -10,10 +10,25 @@ import {
   switchMap,
   takeUntil
 } from "rxjs/operators";
+import { initLoadingSpinner } from "../services/LoadingSpinnerService";
 
 const taskStarts = new Subject();
 const taskCompletions = new Subject();
-const showSpinner = new Observable();
+
+const showSpinner = (total, completed) =>
+  new Observable(() => {
+    const loadingSpinnerPromise = initLoadingSpinner(total, completed);
+
+    loadingSpinnerPromise.then(spinner => {
+      spinner.show();
+    });
+
+    return () => {
+      loadingSpinnerPromise.then(spinner => {
+        spinner.hide();
+      });
+    };
+  });
 
 export function newTaskStarted() {
   taskStarts.next();
