@@ -1,6 +1,6 @@
 import React from "react";
-import { PromiseWithLoadingProgress } from "../lesson-code/Extensions";
 import Button from "./presentational/Button";
+import { PromiseWithLoadingProgress } from "../lesson-code/Extensions";
 
 const doVeryQuickWork = () => {
   new PromiseWithLoadingProgress(resolve => {

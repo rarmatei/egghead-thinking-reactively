@@ -2,11 +2,11 @@ import { fromEvent, timer } from "rxjs";
 import {
   map,
   filter,
-  takeWhile,
-  take,
   takeUntil,
+  takeWhile,
+  skip,
   exhaustMap,
-  skip
+  take
 } from "rxjs/operators";
 
 const anyKeyPresses = fromEvent(document, "keypress").pipe(
@@ -21,12 +21,11 @@ export function keyCombo(keyCombo) {
   const comboInitiator = keyCombo[0];
   return keyPressed(comboInitiator).pipe(
     exhaustMap(() => {
-      const innerComboSize = keyCombo.length - 1;
       return anyKeyPresses.pipe(
+        takeUntil(timer(3000)),
         takeWhile((keyPressed, index) => keyCombo[index + 1] === keyPressed),
-        skip(innerComboSize - 1),
-        take(1),
-        takeUntil(timer(5000))
+        skip(keyCombo.length - 2),
+        take(1)
       );
     })
   );
