@@ -1,17 +1,26 @@
 import React from "react";
 import { timer } from "rxjs";
 import Button from "./presentational/Button";
-import {} from "../lesson-code/TaskProgressService";
+import {
+  existingTaskCompleted,
+  newTaskStarted
+} from "../lesson-code/TaskProgressService";
 
 const slowObservable = timer(3000);
 const verySlowObservable = timer(6000);
 
 const doWork = () => {
-  slowObservable.subscribe();
+  newTaskStarted();
+  slowObservable.subscribe(() => {
+    existingTaskCompleted();
+  });
 };
 
 const doLongWork = () => {
-  verySlowObservable.subscribe();
+  newTaskStarted();
+  verySlowObservable.subscribe(() => {
+    existingTaskCompleted();
+  });
 };
 
 const SlowExample = () => {

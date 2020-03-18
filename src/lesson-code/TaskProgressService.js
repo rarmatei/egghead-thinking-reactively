@@ -1,4 +1,4 @@
-import { Observable, merge } from "rxjs";
+import { Observable, merge, Subject } from "rxjs";
 import {
   mapTo,
   scan,
@@ -11,9 +11,17 @@ import {
   takeUntil
 } from "rxjs/operators";
 
-const taskStarts = new Observable();
-const taskCompletions = new Observable();
+const taskStarts = new Subject();
+const taskCompletions = new Subject();
 const showSpinner = new Observable();
+
+export function newTaskStarted() {
+  taskStarts.next();
+}
+
+export function existingTaskCompleted() {
+  taskCompletions.next();
+}
 
 const loadUp = taskStarts.pipe(mapTo(1));
 const loadDown = taskCompletions.pipe(mapTo(-1));
@@ -42,11 +50,6 @@ const shouldShowSpinner = currentLoadCount.pipe(
 );
 
 // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx //
-
-/*
-  When the spinner needs to show
-    -> show the spinner..until it's time to hide it
-*/
 
 shouldShowSpinner
   .pipe(switchMap(() => showSpinner.pipe(takeUntil(shouldHideSpinner))))
