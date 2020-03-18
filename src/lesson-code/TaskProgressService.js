@@ -1,4 +1,4 @@
-import { Observable, merge, Subject } from "rxjs";
+import { Observable, merge, Subject, timer } from "rxjs";
 import {
   mapTo,
   scan,
@@ -57,17 +57,29 @@ const currentLoadCount = loadVariations.pipe(
 
 // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx //
 
-const shouldHideSpinner = currentLoadCount.pipe(filter(count => count === 0));
+const spinnerDeactivated = currentLoadCount.pipe(filter(count => count === 0));
 
-const shouldShowSpinner = currentLoadCount.pipe(
+const spinnerActivated = currentLoadCount.pipe(
   pairwise(),
   filter(([prevCount, currCount]) => prevCount === 0 && currCount === 1)
 );
 
 // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx //
 
+/*
+  The moment the spinner becomes active
+    Switch to waiting for 2s before showing it
+    But cancel if it becomes inactive again in the meantime
+*/
+
+const shouldShowSpinner = spinnerActivated.pipe(
+  switchMap(() => timer(2000).pipe(takeUntil(spinnerDeactivated)))
+);
+
+// xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx //
+
 shouldShowSpinner
-  .pipe(switchMap(() => showSpinner.pipe(takeUntil(shouldHideSpinner))))
+  .pipe(switchMap(() => showSpinner.pipe(takeUntil(spinnerDeactivated))))
   .subscribe();
 
 export default {};
