@@ -4,15 +4,10 @@ import {
   scan,
   startWith,
   distinctUntilChanged,
-  shareReplay
+  shareReplay,
+  pairwise,
+  filter
 } from "rxjs/operators";
-
-/*
-  How do we count?
-    Start from zero
-    When an async task starts, increase the count by 1
-    When a task ends, decrease the count by 1
-*/
 
 const taskStarts = new Observable();
 const taskCompletions = new Observable();
@@ -33,6 +28,25 @@ const currentLoadCount = loadVariations.pipe(
   }),
   distinctUntilChanged(),
   shareReplay({ bufferSize: 1, refCount: true })
+);
+
+// xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx //
+
+/*
+  When does the loader need to hide?
+    When the count of async tasks goes to 0
+*/
+
+const shouldHideSpinner = currentLoadCount.pipe(filter(count => count === 0));
+
+/*
+  When does the loader need to show?
+    When the count of async tasks goes from 0 to 1
+*/
+
+const shouldShowSpinner = currentLoadCount.pipe(
+  pairwise(),
+  filter(([prevCount, currCount]) => prevCount === 0 && currCount === 1)
 );
 
 export default {};
