@@ -1,5 +1,5 @@
 import { Observable, merge } from "rxjs";
-import { mapTo, scan } from "rxjs/operators";
+import { mapTo, scan, startWith, distinctUntilChanged } from "rxjs/operators";
 
 /*
   How do we count?
@@ -20,10 +20,12 @@ const loadDown = taskCompletions.pipe(mapTo(-1));
 const loadVariations = merge(loadUp, loadDown);
 
 const currentLoadCount = loadVariations.pipe(
+  startWith(0),
   scan((totalCurrentLoads, changeInLoads) => {
     const newLoadCount = totalCurrentLoads + changeInLoads;
     return newLoadCount < 0 ? 0 : newLoadCount;
-  }, 0)
+  }),
+  distinctUntilChanged()
 );
 
 export default {};
