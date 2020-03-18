@@ -11,6 +11,7 @@ import {
   takeUntil
 } from "rxjs/operators";
 import { initLoadingSpinner } from "../services/LoadingSpinnerService";
+import { keyCombo } from "./EventCombo";
 
 const taskStarts = new Subject();
 const taskCompletions = new Subject();
@@ -99,8 +100,13 @@ const shouldHideSpinner = combineLatest(spinnerDeactivated, flashThreshold);
 
 // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx //
 
+const hideSpinnerCombo = keyCombo(["q", "w", "e", "r", "t", "y"]);
+
 shouldShowSpinner
-  .pipe(switchMap(() => spinnerWithStats.pipe(takeUntil(shouldHideSpinner))))
+  .pipe(
+    switchMap(() => spinnerWithStats.pipe(takeUntil(shouldHideSpinner))),
+    takeUntil(hideSpinnerCombo)
+  )
   .subscribe();
 
 export default {};

@@ -5,7 +5,7 @@ import {
   takeUntil,
   takeWhile,
   skip,
-  switchMap,
+  exhaustMap,
   take
 } from "rxjs/operators";
 
@@ -20,7 +20,7 @@ function keyPressed(key) {
 export function keyCombo(keyCombo) {
   const comboInitiator = keyCombo[0];
   return keyPressed(comboInitiator).pipe(
-    switchMap(() => {
+    exhaustMap(() => {
       return anyKeyPresses.pipe(
         takeUntil(timer(3000)),
         takeWhile((keyPressed, index) => keyCombo[index + 1] === keyPressed),
