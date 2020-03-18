@@ -6,7 +6,9 @@ import {
   distinctUntilChanged,
   shareReplay,
   pairwise,
-  filter
+  filter,
+  switchMap,
+  takeUntil
 } from "rxjs/operators";
 
 const taskStarts = new Observable();
@@ -32,21 +34,22 @@ const currentLoadCount = loadVariations.pipe(
 
 // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx //
 
-/*
-  When does the loader need to hide?
-    When the count of async tasks goes to 0
-*/
-
 const shouldHideSpinner = currentLoadCount.pipe(filter(count => count === 0));
-
-/*
-  When does the loader need to show?
-    When the count of async tasks goes from 0 to 1
-*/
 
 const shouldShowSpinner = currentLoadCount.pipe(
   pairwise(),
   filter(([prevCount, currCount]) => prevCount === 0 && currCount === 1)
 );
+
+// xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx //
+
+/*
+  When the spinner needs to show
+    -> show the spinner..until it's time to hide it
+*/
+
+shouldShowSpinner
+  .pipe(switchMap(() => showSpinner.pipe(takeUntil(shouldHideSpinner))))
+  .subscribe();
 
 export default {};
