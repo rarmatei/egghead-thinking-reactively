@@ -1,5 +1,11 @@
 import { Observable, merge } from "rxjs";
-import { mapTo, scan, startWith, distinctUntilChanged } from "rxjs/operators";
+import {
+  mapTo,
+  scan,
+  startWith,
+  distinctUntilChanged,
+  shareReplay
+} from "rxjs/operators";
 
 /*
   How do we count?
@@ -25,7 +31,8 @@ const currentLoadCount = loadVariations.pipe(
     const newLoadCount = totalCurrentLoads + changeInLoads;
     return newLoadCount < 0 ? 0 : newLoadCount;
   }),
-  distinctUntilChanged()
+  distinctUntilChanged(),
+  shareReplay({ bufferSize: 1, refCount: true })
 );
 
 export default {};
