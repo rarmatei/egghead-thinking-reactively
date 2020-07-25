@@ -15,21 +15,6 @@ import { initLoadingSpinner } from "../services/LoadingSpinnerService";
 const taskStarts = new Subject();
 const taskCompletions = new Subject();
 
-const showSpinner = (total, completed) =>
-  new Observable(() => {
-    const loadingSpinnerPromise = initLoadingSpinner(total, completed);
-
-    loadingSpinnerPromise.then(spinner => {
-      spinner.show();
-    });
-
-    return () => {
-      loadingSpinnerPromise.then(spinner => {
-        spinner.hide();
-      });
-    };
-  });
-
 export function newTaskStarted() {
   taskStarts.next();
 }
@@ -65,6 +50,20 @@ const shouldShowSpinner = currentLoadCount.pipe(
 );
 
 // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx //
+
+const showSpinner = new Observable(() => {
+  const loadingSpinnerPromise = initLoadingSpinner();
+
+  loadingSpinnerPromise.then(spinner => {
+    spinner.show();
+  });
+
+  return () => {
+    loadingSpinnerPromise.then(spinner => {
+      spinner.hide();
+    });
+  };
+});
 
 shouldShowSpinner
   .pipe(switchMap(() => showSpinner.pipe(takeUntil(shouldHideSpinner))))
