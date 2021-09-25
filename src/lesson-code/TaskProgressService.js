@@ -82,22 +82,32 @@ const shouldHideSpinner = combineLatest(spinnerDeactivated, flashThreshold);
 
 // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx //
 
-const loadStats = currentLoadCount.pipe(
-  tap((...args) => console.log('spinnerWithStats', args)),
+const spinnerTotal = shouldShowSpinner.pipe(
+  mergeMapTo(currentLoadCount),
+  tap((...args) => console.log('currentLoadCount', args)),
   scan(
     (acc, currentLoadCountInScan) => {
 
-      const loadsWentDown = currentLoadCountInScan < acc.prev;
-      const currentCompleted = loadsWentDown ? acc.completed + 1 : acc.completed;
+      if (acc.isFirst) {
+        acc.isFirst = false;
+        acc.total = currentLoadCountInScan;
+      } else {
+        switch (true) {
+          case (acc.prev < currentLoadCountInScan):
+            acc.total += 1;
+            break;
+          case (acc.prev > currentLoadCountInScan):
+            acc.completed += 1;
+            break;
+        }
+      }
 
       console.log('acc.total', acc.total);
       console.log('acc.completed', acc.completed);
 
-      return {
-        total: currentCompleted + currentLoadCountInScan,
-        completed: currentCompleted,
-        prev: currentLoadCountInScan,
-      };
+      acc.prev = currentLoadCountInScan;
+
+      return acc;
 
       // acc.total = currentLoadCountInScan > acc.total ? currentLoadCountInScan : acc.total;
       // acc.completed = currentLoadCountInScan > acc.total ? currentLoadCountInScan : acc.total;
@@ -106,6 +116,7 @@ const loadStats = currentLoadCount.pipe(
       total: 0,
       completed: 0,
       prev: 0,
+      isFirst: true,
     }
   ),
   // TODO Via react component
@@ -127,14 +138,22 @@ const loadStats = currentLoadCount.pipe(
   })
 );
 
-const spinnerWithStats = loadStats.pipe(
-  switchMap(({ total, completed }) => showSpinner(total, completed))
-);
-
-shouldShowSpinner
+let s = spinnerTotal
   .pipe(
-    switchMap(() => spinnerWithStats.pipe(takeUntil(shouldHideSpinner))),
+    switchMap(({ total, completed }) => {
+      return showSpinner(total, completed)
+        .pipe(
+          takeUntil(shouldHideSpinner)
+        );
+    }),
   )
-  .subscribe();
+  .subscribe({
+    next: () => {
+      console.log('next', s);
+    },
+    complete () {
+      console.log('complete');
+    }
+  });
 
 export default {};
