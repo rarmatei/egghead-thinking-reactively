@@ -8,15 +8,15 @@ import {
   pairwise,
   filter,
   switchMap,
-  takeUntil
+  takeUntil, tap, map, withLatestFrom, mergeMapTo
 } from "rxjs/operators";
 import { initLoadingSpinner } from "../services/LoadingSpinnerService";
 
 const taskStarts = new Subject();
 const taskCompletions = new Subject();
 
-const showSpinner = new Observable(() => {
-    const loadingSpinnerPromise = initLoadingSpinner();
+const showSpinner = (total, completed) => new Observable(() => {
+    const loadingSpinnerPromise = initLoadingSpinner(total, completed);
 
     loadingSpinnerPromise.then(spinner => {
       spinner.show();
@@ -82,8 +82,59 @@ const shouldHideSpinner = combineLatest(spinnerDeactivated, flashThreshold);
 
 // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx //
 
+const loadStats = currentLoadCount.pipe(
+  tap((...args) => console.log('spinnerWithStats', args)),
+  scan(
+    (acc, currentLoadCountInScan) => {
+
+      const loadsWentDown = currentLoadCountInScan < acc.prev;
+      const currentCompleted = loadsWentDown ? acc.completed + 1 : acc.completed;
+
+      console.log('acc.total', acc.total);
+      console.log('acc.completed', acc.completed);
+
+      return {
+        total: currentCompleted + currentLoadCountInScan,
+        completed: currentCompleted,
+        prev: currentLoadCountInScan,
+      };
+
+      // acc.total = currentLoadCountInScan > acc.total ? currentLoadCountInScan : acc.total;
+      // acc.completed = currentLoadCountInScan > acc.total ? currentLoadCountInScan : acc.total;
+    },
+    {
+      total: 0,
+      completed: 0,
+      prev: 0,
+    }
+  ),
+  // TODO Via react component
+  tap(({ total }) => {
+    let el = document.createElement('h1');
+    el.id = '123';
+    el.style.position = 'absolute';
+    el.style.right = 0;
+    el.style.bottom = 0;
+
+    if (document.getElementById('123')) {
+      el.remove();
+      el = document.getElementById('123');
+    } else {
+      document.body.appendChild(el);
+    }
+
+    el.innerText = total;
+  })
+);
+
+const spinnerWithStats = loadStats.pipe(
+  switchMap(({ total, completed }) => showSpinner(total, completed))
+);
+
 shouldShowSpinner
-  .pipe(switchMap(() => showSpinner.pipe(takeUntil(shouldHideSpinner))))
+  .pipe(
+    switchMap(() => spinnerWithStats.pipe(takeUntil(shouldHideSpinner))),
+  )
   .subscribe();
 
 export default {};

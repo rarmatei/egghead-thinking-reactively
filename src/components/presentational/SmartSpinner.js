@@ -25,7 +25,7 @@ export class SmartSpinner extends React.Component {
     const percentageLoaded = percentageDefined ? (loaded / total) * 100 : 0;
     this.setState({
       percentageLoaded: Math.round(percentageLoaded),
-      showPercentage: percentageLoaded > 0 && percentageLoaded < 100,
+      showPercentage: percentageLoaded > -1 && percentageLoaded < 101,
       show: true
     });
   }
