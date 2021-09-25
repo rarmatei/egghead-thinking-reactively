@@ -8,15 +8,15 @@ import {
   pairwise,
   filter,
   switchMap,
-  takeUntil
+  takeUntil, tap, map, withLatestFrom, mergeMapTo
 } from "rxjs/operators";
 import { initLoadingSpinner } from "../services/LoadingSpinnerService";
 
 const taskStarts = new Subject();
 const taskCompletions = new Subject();
 
-const showSpinner = new Observable(() => {
-    const loadingSpinnerPromise = initLoadingSpinner();
+const showSpinner = (total, completed) => new Observable(() => {
+    const loadingSpinnerPromise = initLoadingSpinner(total, completed);
 
     loadingSpinnerPromise.then(spinner => {
       spinner.show();
@@ -82,8 +82,78 @@ const shouldHideSpinner = combineLatest(spinnerDeactivated, flashThreshold);
 
 // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx //
 
-shouldShowSpinner
-  .pipe(switchMap(() => showSpinner.pipe(takeUntil(shouldHideSpinner))))
-  .subscribe();
+const spinnerTotal = shouldShowSpinner.pipe(
+  mergeMapTo(currentLoadCount),
+  tap((...args) => console.log('currentLoadCount', args)),
+  scan(
+    (acc, currentLoadCountInScan) => {
+
+      if (acc.isFirst) {
+        acc.isFirst = false;
+        acc.total = currentLoadCountInScan;
+      } else {
+        switch (true) {
+          case (acc.prev < currentLoadCountInScan):
+            acc.total += 1;
+            break;
+          case (acc.prev > currentLoadCountInScan):
+            acc.completed += 1;
+            break;
+        }
+      }
+
+      console.log('acc.total', acc.total);
+      console.log('acc.completed', acc.completed);
+
+      acc.prev = currentLoadCountInScan;
+
+      return acc;
+
+      // acc.total = currentLoadCountInScan > acc.total ? currentLoadCountInScan : acc.total;
+      // acc.completed = currentLoadCountInScan > acc.total ? currentLoadCountInScan : acc.total;
+    },
+    {
+      total: 0,
+      completed: 0,
+      prev: 0,
+      isFirst: true,
+    }
+  ),
+  // TODO Via react component
+  tap(({ total }) => {
+    let el = document.createElement('h1');
+    el.id = '123';
+    el.style.position = 'absolute';
+    el.style.right = 0;
+    el.style.bottom = 0;
+
+    if (document.getElementById('123')) {
+      el.remove();
+      el = document.getElementById('123');
+    } else {
+      document.body.appendChild(el);
+    }
+
+    el.innerText = total;
+  })
+);
+
+let s = spinnerTotal
+  .pipe(
+    switchMap(({ total, completed }) => {
+      return showSpinner(total, completed)
+        .pipe(
+          takeUntil(shouldHideSpinner)
+        );
+    }),
+  )
+  .subscribe({
+    next: () => {
+      console.log('next', s);
+    },
+    complete () {
+      console.log('complete');
+    }
+  });
 
 export default {};
